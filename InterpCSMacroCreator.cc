@@ -175,8 +175,12 @@ void GetMaterialList(std::stringstream& stream, std::vector<double> &matDensityL
         {
             if(!stream.good())
             {
-                return;
+                break;
             }
+        }
+        if(!stream.good())
+        {
+            break;
         }
 
         getline(stream, line);
@@ -317,6 +321,38 @@ void GetMaterialList(std::stringstream& stream, std::vector<double> &matDensityL
                 numConv.str(ExtractString(wordSS, 'g', 3));
                 numConv >> dens;
                 matDensityList.push_back(dens);
+            }
+        }
+    }
+
+    //Get rid of copies
+    double match;
+    for(int i=0; i<int(matDensityList.size()); i++)
+    {
+        for(int j=i+1; j<int(matDensityList.size()); j++)
+        {
+            if((matDensityList[i]==matDensityList[j])&&(matTempList[i]==matTempList[j]))
+            {
+                match=0.;
+                for(int k=0; k<int(isoNameList[i].size()); k++)
+                {
+                    for(int l=0; l<int(isoNameList[j].size()); l++)
+                    {
+                        if((isoNameList[i][k]==isoNameList[j][l])&&(isoAmountVec[i][k]==isoAmountVec[j][l])&&(isoTempVec[i][k]==isoTempVec[j][l]))
+                        {
+                            match++;
+                            break;
+                        }
+                    }
+                }
+                if(match==max(isoNameList[i].size(),isoNameList[j].size()))
+                {
+                    matDensityList.erase(matDensityList.begin()+j);
+                    matTempList.erase(matTempList.begin()+j);
+                    isoNameList.erase(isoNameList.begin()+j);
+                    isoAmountVec.erase(isoAmountVec.begin()+j);
+                    isoTempVec.erase(isoTempVec.begin()+j);
+                }
             }
         }
     }
